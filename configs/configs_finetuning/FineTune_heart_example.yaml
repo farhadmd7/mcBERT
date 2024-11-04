@@ -1,0 +1,33 @@
+HIGHLY_VAR_GENES_PATH: ".../highly_variable_genes_raw.csv"
+H5AD_FILES: ".../*.h5ad"
+
+train:
+  log_dir: '...'          # ADAPT LOG DIRECTORY
+  checkpoints_dir: '...'  # ADAPT CHECKPOINTS DIRECTORY
+  batch_size: 48
+  eval_batch_size: 48
+  num_epochs: 1000
+  save_ckpt_freq: 2
+  oversampling: true
+  
+  no_test_dataset: true # if there is another dataset solely for testing purposes, set to false. Then, we use a 80 - 20 ratio for training and validation.
+                        # Otherwise, we split the dataset in a 70 - 10 - 20 ratio for training, validation, testing respectively.
+  exclude_dataset: ""
+  patience: 20          # early stopping epochs
+  pretrained: true
+  umap_frequency: 10
+
+val:
+  oversampling: true
+
+optimizer:
+  lr: 1e-5
+  weight_decay: 0.01
+model:
+  pre_train_ckpt: '.ckpt' # ADAPT PRETRAINED MODEL PATH
+  vocab_size: 1002        # 1000 HVGs + 1 CLS + 1 MSK
+  embed_dim: 288
+  hidden_size: 288
+  num_hidden_layers: 12
+  num_attention_heads: 12
+  name: 'mcBERT_1024'

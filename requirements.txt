@@ -1,0 +1,13 @@
+matplotlib==3.9.2
+numpy==1.23.0
+omegaconf==2.3.0
+pandas==2.2.3
+pytorch_metric_learning==2.6.0
+scanpy==1.10.3
+scikit_learn==1.5.2
+seaborn==0.13.2
+torch==2.5.1
+tqdm==4.66.5
+transformers==4.46.1
+umap==0.1.1
+tensorboard==2.18.0

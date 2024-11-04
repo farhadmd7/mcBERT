@@ -1,0 +1,39 @@
+HIGHLY_VAR_GENES_PATH: ".../highly_variable_genes_raw.csv"
+H5AD_FILES: ".../*.h5ad"
+
+modality: 'single-cell'
+device: 'cuda'
+
+train:
+  log_dir: '...'          # ADAPT LOG DIRECTORY
+  checkpoints_dir: '...'  # ADAPT CHECKPOINTS DIRECTORY
+  batch_size: 16
+  eval_batch_size: 16
+  num_epochs: 10
+  save_ckpt_freq: 2
+  oversampling: false
+val:
+  oversampling: true
+
+criterion:
+  loss_beta: 4
+
+optimizer:
+  lr: 1e-5
+  weight_decay: 0.01
+
+dataset:
+  mlm_probability: 0.15
+
+model:
+  name: 'D2V_test_pretraining'
+  vocab_size: 1002               # 1000 HVGs + 1 CLS + 1 MSK
+  average_top_k_layers: 6 
+  embed_dim: 288
+  hidden_size: 288
+  num_hidden_layers: 12
+  num_attention_heads: 12
+  normalize_targets: true
+  ema_decay: 0.999
+  ema_end_decay: 0.9999
+  ema_anneal_end_step: 300000
