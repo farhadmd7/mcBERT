@@ -28,7 +28,7 @@ dependencies = [
   "scanpy==1.10.3",
   "scikit_learn==1.5.2",
   "seaborn==0.13.2",
-  "torch==2.5.1",
+  "torch<=2.5.1",
   "tqdm==4.66.5",
   "transformers==4.46.1",
   "umap==0.1.1",
