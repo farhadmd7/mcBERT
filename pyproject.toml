@@ -3,7 +3,7 @@ requires = ["hatchling>=1.6"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mcBERT"
+name = "mcBERT_data2vec"
 version = "0.1.0"
 description = "Fork of mcBERT - patient-level single-cell representation with data2vec"
 readme = "README.md"
