@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.6"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcBERT_data2vec"
+version = "0.1.0"
+description = "Fork of mcBERT - patient-level single-cell representation with data2vec"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+keywords = ["single-cell", "RNA-seq", "transformers", "data2vec", "mcBERT"]
+authors = [
+  { name = "Your Name", email = "you@example.com" }
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+  # ============= Updated dependencies from requirements.txt =============
+  "matplotlib==3.9.2",
+  "numpy==1.23.0",
+  "omegaconf==2.3.0",
+  "pandas==2.2.3",
+  "pytorch_metric_learning==2.6.0",
+  "scanpy==1.10.3",
+  "scikit_learn==1.5.2",
+  "seaborn==0.13.2",
+  "torch==2.5.1",
+  "tqdm==4.66.5",
+  "transformers==4.46.1",
+  "umap==0.1.1",
+  "tensorboard==2.18.0",
+]
+
+[tool.hatch.metadata]
+description-file = "README.md"
+
+# Tells hatchling how to treat your source layout. 
+# If your code is in a top-level folder "mcBERT/" and "data2vec/", you might do:
+[tool.hatch.build.targets.wheel]
+include = [
+  "mcBERT/**/*",
+  "data2vec/**/*",
+  "LICENSE",
+  "README.md",
+]
