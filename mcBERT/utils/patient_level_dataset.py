@@ -17,6 +17,7 @@ class Patient_level_dataset(Dataset):
         oversampling=False,
         mlm_probability=0.15,
         random_cell_stratification=0.1,
+        cell_type_key : str = None
     ):
         super(Patient_level_dataset, self).__init__()
 
@@ -26,12 +27,7 @@ class Patient_level_dataset(Dataset):
         self.n_cells = n_cells
         self.df = df
 
-        # Automatically detect the column name of the cell identifier from the given set of columns
-        self.cell_id_name = list(
-            set(sc.read_h5ad(df["file_path"][0], backed="r").obs.columns).union(
-                set(["mycelltypes", "Cell_Type", "cell_type"])
-            )
-        )[0]
+        self.cell_type_key = cell_type_key
 
         if oversampling:
             self.donor_oversampling()
@@ -98,18 +94,7 @@ class Patient_level_dataset(Dataset):
 
         cell_selection_idx = []
 
-        if "cell_id" in h5ad_file.obs.columns:
-            cell_identifier = "cell_id"
-        elif "Cell_type" in h5ad_file.obs.columns:
-            cell_identifier = "Cell_type"
-        elif "mycelltypes" in h5ad_file.obs.columns:
-            cell_identifier = "mycelltypes"
-        elif "cell_type" in h5ad_file.obs.columns:
-            cell_identifier = "cell_type"
-        elif "Celltype" in h5ad_file.obs.columns:
-            cell_identifier = "Celltype"
-
-        cell_count = h5ad_file.obs[cell_identifier].value_counts()
+        cell_count = h5ad_file.obs[self.cell_type_key].value_counts()
         cells_added = 0
         for cell_type, counts in zip(cell_count.index, cell_count):
             if cells_added >= self.n_cells:
@@ -127,7 +112,7 @@ class Patient_level_dataset(Dataset):
             num_cells_select = min(max(num_cells_select, 0), self.n_cells - cells_added)
             cell_selection_idx.extend(
                 np.random.choice(
-                    np.where(h5ad_file.obs[cell_identifier] == cell_type)[0],
+                    np.where(h5ad_file.obs[self.cell_type_key] == cell_type)[0],
                     num_cells_select,
                 )
             )
