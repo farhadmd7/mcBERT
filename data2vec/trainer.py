@@ -38,26 +38,42 @@ class mcRNA_Trainer:
         self.criterion.to(self.device)
 
         # Datasets & Data Loaders
-        all_patients_files = glob(cfg.H5AD_FILES)
+        all_patients_files = glob(cfg.H5AD_FILES + '/*.h5ad')
 
         train_files, test_files = train_test_split(all_patients_files, test_size=0.2)
+        
+        df_train = prepare_dataset(
+            train_files,
+            multiprocess=True,
+            sample_key=self.cfg.dataset.sample_key,
+            condition_key=self.cfg.dataset.condition_key,
+        )
+        df_test = prepare_dataset(
+            test_files,
+            multiprocess=True,
+            sample_key=self.cfg.dataset.sample_key,
+            condition_key=self.cfg.dataset.condition_key,
+        )
+        
         self.train_dataset = Patient_level_dataset(
-            prepare_dataset(train_files, multiprocess=True),
+            df_train,
             select_gene_path=cfg.HIGHLY_VAR_GENES_PATH,
             n_cells=1023,
             inference=True,
+            cell_type_key=self.cfg.dataset.cell_type_key
         )
         self.test_dataset = Patient_level_dataset(
-            prepare_dataset(test_files, multiprocess=True),
+            df_test,
             select_gene_path=cfg.HIGHLY_VAR_GENES_PATH,
             n_cells=1023,
             inference=True,
+            cell_type_key=self.cfg.dataset.cell_type_key
         )
 
         self.train_loader = DataLoader(
             self.train_dataset,
             batch_size=cfg.train.batch_size,
-            num_workers=4,
+            num_workers=cfg.train.num_workers,
             pin_memory=True,
             persistent_workers=True,
             shuffle=True,
@@ -66,7 +82,7 @@ class mcRNA_Trainer:
         self.test_loader = DataLoader(
             self.test_dataset,
             batch_size=cfg.train.eval_batch_size,
-            num_workers=4,
+            num_workers=cfg.train.num_workers,
             pin_memory=True,
             persistent_workers=True,
             shuffle=False,
