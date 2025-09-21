@@ -14,3 +14,5 @@ if __name__ == "__main__":
     cfg = omegaconf.OmegaConf.load(cfg_path)
     trainer = mcRNA_Trainer(cfg)
     trainer.train()
+
+
