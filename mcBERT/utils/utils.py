@@ -7,9 +7,10 @@ import pandas as pd
 import scanpy as sc
 import torch
 from mcBERT.encoder import McBERT_Encoder
+from functools import partial
 
 
-def get_diseases(file: str) -> list:
+def get_diseases(file: str, sample_key: str = None, condition_key: str = None) -> list:
     """Returns the disease, patient_identifier, number of genes and file name of a h5ad file that only contains one patient.
 
     Args:
@@ -21,38 +22,19 @@ def get_diseases(file: str) -> list:
 
     h5ad_file = sc.read_h5ad(file, backed="r")
 
-    if "mypatients" in h5ad_file.obs.columns:
-        patient_identifier = "mypatients"
-    elif "donor_id" in h5ad_file.obs.columns:
-        patient_identifier = "donor_id"
-    elif "Donor" in h5ad_file.obs.columns:
-        patient_identifier = "Donor"
-
-    if "myconditions" in h5ad_file.obs.columns:
-        condition_identifier = "myconditions"
-    elif "Condition" in h5ad_file.obs.columns:
-        condition_identifier = "Condition"
-    elif "disease" in h5ad_file.obs.columns:
-        condition_identifier = "disease"
-
-    disease = h5ad_file.obs[condition_identifier].unique()[0]
-    donor_id_file = (
-        "_".join(file.split("_")[:-1])
-        + "_"
-        + h5ad_file.obs[patient_identifier].unique()[0]
-    )
-    h5ad_file_name = Path(file).stem.split(".h5ad")[0]
+    disease = h5ad_file.obs[condition_key].unique()[0]
+    base = file.split(".h5ad")[0]
 
     return (
         disease,
-        donor_id_file,
+        base,
         len(h5ad_file.var.index),
-        h5ad_file_name,
+        base,
     )
 
 
 def get_file_info(
-    files: list, multiprocess: bool = False, n_jobs: int = 20
+    files: list, multiprocess: bool = False, n_jobs: int = 20, sample_key: str = None, condition_key: str = None
 ) -> list[list]:
     """Load file information:
     (disease, patient_identifier, number of genes, file name)
@@ -66,19 +48,20 @@ def get_file_info(
         list[list]: List of file information
     """
     file_info = []
+    fn = partial(get_diseases, sample_key=sample_key, condition_key=condition_key)
 
     if multiprocess:
         with Pool(n_jobs) as p:
-            file_info = p.map(get_diseases, files, chunksize=5)
+            file_info = p.map(fn, files, chunksize=5)
     else:
         for file in files:
-            file_info.append(get_diseases(file))
+            file_info.append(fn(file))
 
     return file_info
 
 
-def prepare_dataset(files, **kwargs):
-    file_info = get_file_info(files, **kwargs)
+def prepare_dataset(files, sample_key: str = None, condition_key: str = None, **kwargs):
+    file_info = get_file_info(files,sample_key=sample_key, condition_key=condition_key, **kwargs)
     diseases = [info[0] for info in file_info]
     donor_ids = [info[1] for info in file_info]
     n_genes = [info[2] for info in file_info]
@@ -95,10 +78,10 @@ def prepare_dataset(files, **kwargs):
     )
 
     # Correct healthy labels
-    df.loc[df["disease"] == "healthy", "disease"] = "Healthy"
-    df.loc[df["disease"] == "normal", "disease"] = "Healthy"
-    df.loc[df["disease"] == "control", "disease"] = "Healthy"
-    df.loc[df["disease"] == "Ref", "disease"] = "Healthy"
+    # df.loc[df["disease"] == "healthy", "disease"] = "Healthy"
+    # df.loc[df["disease"] == "normal", "disease"] = "Healthy"
+    # df.loc[df["disease"] == "control", "disease"] = "Healthy"
+    # df.loc[df["disease"] == "Ref", "disease"] = "Healthy"
 
     return df
 
